@@ -30,19 +30,18 @@ CREATE TABLE Sales_staff (
 
 CREATE TABLE Satisfaction_type (
   SATISFACTION_TYPE_code int PRIMARY KEY,
-  SATISFACTION_TYPE_description nvarchar(255) NOT NULL,
-  SATISFACTION_TYPE_description_short nvarchar(50) NOT NULL
+  SATISFACTION_TYPE_description varchar(255) NOT NULL,
+  SATISFACTION_TYPE_description_short varchar(50) NOT NULL
 );
 
 CREATE TABLE Course (
   COURSE_code int PRIMARY KEY,
-  COURSE_description nvarchar(max) NOT NULL, -- Consider using a narrower data type if description length is limited
+  COURSE_description varchar(255) NOT NULL,
   COURSE_description_short nvarchar(255) NOT NULL
 );
 
 CREATE TABLE Year (
   Year int PRIMARY KEY,
-  UNIQUE (Year), -- Add UNIQUE constraint for explicit enforcement
   CHECK (Year >= 1000 AND Year <= 9999) -- Adjust year range as needed
 );
 
@@ -53,7 +52,7 @@ CREATE TABLE Date (
 CREATE TABLE "Order" (
   ORDER_order_number int PRIMARY KEY,
   ORDER_ORDER_METHOD_CODE_method_code int,
-  ORDER_ORDER_METHOD_EN_method nvarchar(50) NOT NULL,
+  ORDER_ORDER_METHOD_EN_method varchar(50) NOT NULL,
 );
 
 CREATE TABLE Retailer_site (
@@ -67,8 +66,7 @@ CREATE TABLE Retailer_site (
   RETAILER_SITE_ADDRESS1_address varchar(255),
   RETAILER_SITE_ADDRESS2_address varchar(255),
   RETAILER_SITE_ADDRESS3_address varchar(255),
-  -- Consider using a calculated field for full address instead of storing it separately
-  RETAILER_SITE_MAIN_ADDRESS__address nvarchar(max)
+  RETAILER_SITE_MAIN_ADDRESS__address varchar(255)
 );
 
 CREATE TABLE Sales_branch (
@@ -79,8 +77,7 @@ CREATE TABLE Sales_branch (
   SALES_BRANCH_POSTAL_ZONE_postal_zone varchar(20),
   SALES_BRANCH_ADDRESS1_address varchar(255),
   SALES_BRANCH_ADDRESS2_address varchar(255),
-  -- Consider using a calculated field for full address instead of storing it separately
-  SALES_BRANCH_MAIN_ADDRESS_address nvarchar(max)
+  SALES_BRANCH_MAIN_ADDRESS_address varchar(255)
 );
 
 CREATE TABLE Retailer_contact (
@@ -91,11 +88,10 @@ CREATE TABLE Retailer_contact (
   RETAILER_CONTACT_JOB_POSITION_EN_position varchar(50),
   RETAILER_CONTACT_EXTENSION_extension varchar(50),
   RETAILER_CONTACT_FAX_fax varchar(50),
-  RETAILER_CONTACT_GENDER_gender varchar(10), -- Consider using a narrower data type if gender is limited to specific options
+  RETAILER_CONTACT_GENDER_gender char(1),
   RETAILER_CONTACT_FIRST_NAME_first_name varchar(50) NOT NULL,
   RETAILER_CONTACT_LAST_NAME_last_name varchar(50) NOT NULL,
-  -- Consider using a calculated field for full name instead of storing it separately
-  RETAILER_CONTACT_FULL_NAME_full_name nvarchar(255)
+  RETAILER_CONTACT_FULL_NAME_full_name AS (RETAILER_CONTACT_FIRST_NAME_first_name + ' ' + RETAILER_CONTACT_LAST_NAME_last_name) PERSISTED -- persisted so it can be indexed and is only calculated once (at first insert)
 );
 
 CREATE TABLE Retailer (
@@ -110,7 +106,7 @@ CREATE TABLE Product (
   PRODUCT_number INT PRIMARY KEY,
   PRODUCT_name_product NVARCHAR(MAX) NOT NULL,
   PRODUCT_description_description NVARCHAR(MAX),
-  PRODUCT_image_image VARBINARY(MAX),
+  PRODUCT_image_image VARCHAR(255), -- url to image
   PRODUCT_INTRODUCTION_DATE_introduced DATE,
   PRODUCT_PRODUCTION_COST_cost DECIMAL(10, 2) NOT NULL,
   PRODUCT_MARGIN_margin DECIMAL(5, 2) NOT NULL,
@@ -165,24 +161,22 @@ CREATE TABLE SALES_TARGETDATA (
 );
 
 CREATE TABLE Training (
-  TRAINING_id INT PRIMARY KEY IDENTITY,  -- Use auto-incrementing ID as primary key
   TRAINING_SALES_STAFF_CODE INT NOT NULL,
   FOREIGN KEY (TRAINING_SALES_STAFF_CODE) REFERENCES Sales_staff(SALES_STAFF_code),
   TRAINING_COURSE_CODE INT NOT NULL,
-  TRAINING_START_DATE DATE,  -- Include start date for tracking completion or ongoing training
-  TRAINING_END_DATE DATE,    -- Include end date for tracking completion or duration
-  TRAINING_STATUS VARCHAR(10) CHECK (TRAINING_STATUS IN ('Enrolled', 'Completed', 'Cancelled')),  -- Add status for completion tracking
-  UNIQUE (TRAINING_SALES_STAFF_CODE, TRAINING_COURSE_CODE, TRAINING_START_DATE)  -- Enforce unique combination for same staff, course, and start date
+    FOREIGN KEY (TRAINING_COURSE_CODE) REFERENCES Course(COURSE_code),
+    TRAINING_YEAR INT NOT NULL,
+    CHECK (TRAINING_YEAR >= 1000 AND TRAINING_YEAR <= 9999),  -- Year range check
+    PRIMARY KEY (TRAINING_SALES_STAFF_CODE, TRAINING_COURSE_CODE)  -- Use composite primary key for unique combination
 );
 
 CREATE TABLE Satisfaction (
-  SATISFACTION_id INT PRIMARY KEY IDENTITY,  -- Use auto-incrementing ID as primary key -- Use auto-incrementing ID as primary key
   SATISFACTION_SALES_STAFF_CODE INT NOT NULL,
   FOREIGN KEY (SATISFACTION_SALES_STAFF_CODE) REFERENCES Sales_staff(SALES_STAFF_code),
   SATISFACTION_SATISFACTION_TYPE_CODE INT NOT NULL,
   FOREIGN KEY (SATISFACTION_SATISFACTION_TYPE_CODE) REFERENCES Satisfaction_type(SATISFACTION_TYPE_code),
+  PRIMARY KEY (SATISFACTION_SALES_STAFF_CODE, SATISFACTION_SATISFACTION_TYPE_CODE),  -- Use composite primary key for unique combination
   SATISFACTION_YEAR INT NOT NULL,
-  SATISFACTION_VALUE numeric(5,2) NOT NULL  -- Assuming satisfaction is numerical with a scale of 2 decimal places
 );
 
 CREATE TABLE Order_header (
@@ -194,8 +188,6 @@ CREATE TABLE Order_header (
   ORDER_HEADER_SALES_BRANCH_CODE int,  -- Foreign key referencing Sales_branch table (nullable)
   FOREIGN KEY (ORDER_HEADER_SALES_BRANCH_CODE) REFERENCES Sales_branch(SALES_BRANCH_code),
   ORDER_HEADER_ORDER_DATE date NOT NULL,
-  ORDER_HEADER_SHIP_DATE date, -- Add optional shipping date
-  ORDER_HEADER_STATUS VARCHAR(10) CHECK( ORDER_HEADER_STATUS IN('New', 'Processing', 'Shipped', 'Cancelled')),  -- Track order status
   ORDER_HEADER_RETAILER_SITE_CODE int,  -- Foreign key referencing Retailer_site table (nullable)
   FOREIGN KEY (ORDER_HEADER_RETAILER_SITE_CODE) REFERENCES Retailer_site(RETAILER_SITE_code),
   ORDER_HEADER_RETAILER_CONTACT_CODE int,  -- Foreign key referencing Retailer_contact table (nullable)
@@ -207,17 +199,17 @@ CREATE TABLE GO_SALES_INVENTORY_LEVELS (
   GO_SALES_INVENTORY_LEVELS_INVENTORY_COUNT INT NOT NULL,
   GO_SALES_INVENTORY_LEVELS_PRODUCT_NUMBER INT NOT NULL,
   FOREIGN KEY (GO_SALES_INVENTORY_LEVELS_PRODUCT_NUMBER) REFERENCES Product (PRODUCT_number),
-  GO_SALES_INVENTORY_LEVELS_YEAR_MONTH VARCHAR(10) NOT NULL,  -- Combine year and month for efficient storage and retrieval
-  CHECK (LEN(GO_SALES_INVENTORY_LEVELS_YEAR_MONTH) = 6)  -- Enforce year-month format (YYYYMM)
+  GO_SALES_INVENTORY_LEVELS_YEAR_MONTH INT NOT NULL,  -- Combine year and month for efficient storage and retrieval
+CHECK (GO_SALES_INVENTORY_LEVELS_YEAR_MONTH BETWEEN 100000 AND 999912)  -- Enforce year-month format (YYYYMM) -- Enforce year-month format (YYYYMM)
 );
 
 CREATE TABLE GO_SALES_PRODUCT_FORECAST (
   GO_SALES_PRODUCT_FORECAST_id INT PRIMARY KEY IDENTITY, -- Use auto-incrementing ID as primary key
   GO_SALES_PRODUCT_FORECAST_EXPECTED_VOLUME INT NOT NULL,
-  GO_SALES_PRODUCT_FORECAST_EXPECTED_COST numeric(10,2) NOT NULL,
-  GO_SALES_PRODUCT_FORECAST_EXPECTED_MARGIN NUMERIC(5,2) NOT NULL,
+  GO_SALES_PRODUCT_FORECAST_EXPECTED_COST NUMERIC(10,2) NOT NULL,
+  GO_SALES_PRODUCT_FORECAST_EXPECTED_MARGIN NUMERIC(10,2) NOT NULL,
   GO_SALES_PRODUCT_FORECAST_PRODUCT_NUMBER INT NOT NULL,
   FOREIGN KEY (GO_SALES_PRODUCT_FORECAST_PRODUCT_NUMBER) REFERENCES Product(PRODUCT_number),
-  GO_SALES_PRODUCT_FORECAST_YEAR_MONTH VARCHAR(10) NOT NULL, -- Combine year and month for efficient storage and retrieval
-  CHECK (LEN(GO_SALES_PRODUCT_FORECAST_YEAR_MONTH) = 6) -- Enforce year-month format (YYYYMM)
+  GO_SALES_PRODUCT_FORECAST_YEAR_MONTH INT NOT NULL,  -- Combine year and month for efficient storage and retrieval
+CHECK (GO_SALES_PRODUCT_FORECAST_YEAR_MONTH BETWEEN 100000 AND 999912)  -- Enforce year-month format (YYYYMM)
 );
