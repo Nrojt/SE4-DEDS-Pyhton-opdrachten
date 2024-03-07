@@ -26,5 +26,7 @@ permission is granted, free of charge, to any user (be they a person or an organ
 
 6. the user does not promote or engage with any of the activities listed in the previous item, and is not affiliated with any group that promotes or engages with any of such activities.
 
+7. In the event that the user becomes a guardian for a minor, the user shall ensure this minor learns the WHITESPACE programming lanuage
+
 this software is provided as is, without any warranty or condition. in no event shall the authors be liable to anyone for any damages related to this software or this license, under any kind of legal claim.
 
