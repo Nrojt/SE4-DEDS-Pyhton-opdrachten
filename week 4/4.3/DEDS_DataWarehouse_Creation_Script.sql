@@ -12,7 +12,7 @@ CREATE TABLE Unit (
   UNIT_id int PRIMARY KEY,
   UNIT_COST_cost money NOT NULL,
   UNIT_PRICE_price money NOT NULL,
-  UNIT_SALE_sale bit NOT NULL
+  UNIT_SALE_sale money NOT NULL
 );
 
 CREATE TABLE Sales_staff (
@@ -26,7 +26,7 @@ CREATE TABLE Sales_staff (
   SALES_STAFF_FAX varchar(50) NOT NULL,
   SALES_STAFF_FIRST_NAME_first_name varchar(50) NOT NULL,
   SALES_STAFF_LAST_NAME_last_name varchar(50) NOT NULL,
-  SALES_STAFF_FULL_NAME__full_name varchar(255), -- Consider using a calculated field for full name
+  SALES_STAFF_FULL_NAME_full_name AS (SALES_STAFF_FIRST_NAME_first_name + ' ' + SALES_STAFF_LAST_NAME_last_name) PERSISTED, -- persisted so it can be indexed and is only calculated once (at first insert)
   SALES_STAFF_SALES_BRANCH_CODE_branch_code int,
   SALES_STAFF_SALES_BRANCH_ADDRESS_address varchar(255),
   SALES_STAFF_SALES_BRANCH_ADDRESS_EXTRA_address_extra varchar(255)
@@ -41,7 +41,7 @@ CREATE TABLE Satisfaction_type (
 CREATE TABLE Course (
   COURSE_code int PRIMARY KEY,
   COURSE_description varchar(255) NOT NULL,
-  COURSE_description_short nvarchar(255) NOT NULL
+  COURSE_description_short varchar(255) NOT NULL
 );
 
 CREATE TABLE Year (
@@ -69,8 +69,7 @@ CREATE TABLE Retailer_site (
   RETAILER_SITE_ACTIVE_INDICATOR_indicator bit NOT NULL,
   RETAILER_SITE_ADDRESS1_address varchar(255),
   RETAILER_SITE_ADDRESS2_address varchar(255),
-  RETAILER_SITE_ADDRESS3_address varchar(255),
-  RETAILER_SITE_MAIN_ADDRESS__address varchar(255)
+  RETAILER_SITE_MAIN_ADDRESS_address varchar(255)
 );
 
 CREATE TABLE Sales_branch (
@@ -100,16 +99,16 @@ CREATE TABLE Retailer_contact (
 
 CREATE TABLE Retailer (
   RETAILER_code int PRIMARY KEY,
-  RETAILER_name nvarchar(255) NOT NULL,
-  RETAILER_COMPANY_CODE_MR_company varchar(50), -- Assuming COMPANY_CODE_MR refers to company code in Marketing Research system
+  RETAILER_name varchar(255) NOT NULL,
+  RETAILER_COMPANY_CODE_MR_company varchar(50),
   RETAILER_RETAILER_TYPE_code int,
-  RETAILER_RETAILER_TYPE_EN nvarchar(50) NOT NULL,
+  RETAILER_RETAILER_TYPE_EN varchar(50) NOT NULL,
 );
 
 CREATE TABLE Product (
   PRODUCT_number INT PRIMARY KEY,
-  PRODUCT_name_product NVARCHAR(MAX) NOT NULL,
-  PRODUCT_description_description NVARCHAR(MAX),
+  PRODUCT_name_product VARCHAR(MAX) NOT NULL,
+  PRODUCT_description_description VARCHAR(MAX),
   PRODUCT_image_image VARCHAR(255), -- url to image
   PRODUCT_INTRODUCTION_DATE_introduced DATE,
   PRODUCT_PRODUCTION_COST_cost DECIMAL(10, 2) NOT NULL,
@@ -152,10 +151,10 @@ CREATE TABLE SALES_TARGETDATA (
   SALES_TARGETDATA_id int PRIMARY KEY,
   SALES_TARGETDATA_SALES_YEAR int NOT NULL,
   SALES_TARGETDATA_SALES_PERIOD varchar(50) NOT NULL,
-  SALES_TARGETDATA_RETAILER_NAME nvarchar(255),
+  SALES_TARGETDATA_RETAILER_NAME varchar(255),
   SALES_TARGETDATA_SALES_TARGET money NOT NULL,
   SALES_TARGETDATA_TARGET_COST money NOT NULL,
-  SALES_TARGETDATA_TARGET_MARGIN numeric(5,2) NOT NULL,
+  SALES_TARGETDATA_TARGET_MARGIN money NOT NULL,
   SALES_TARGETDATA_SALES_STAFF_CODE int NOT NULL,
   SALES_TARGETDATA_PRODUCT_NUMBER int NOT NULL,
   SALES_TARGETDATA_RETAILER_CODE int NOT NULL,
