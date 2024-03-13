@@ -9,14 +9,16 @@ USE DEDS_DataWarehouse;
 GO  -- Switch to the newly created database
 
 CREATE TABLE Unit (
-  UNIT_id int PRIMARY KEY,
+UNIT_SK int IDENTITY (1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  UNIT_id int,
   UNIT_COST_cost money NOT NULL,
   UNIT_PRICE_price money NOT NULL,
   UNIT_SALE_sale money NOT NULL
 );
 
 CREATE TABLE Sales_staff (
-  SALES_STAFF_code int PRIMARY KEY,
+  SALES_STAFF_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  SALES_STAFF_code int,
   SALES_STAFF_email varchar(255) NOT NULL,
   SALES_STAFF_extension varchar(50) NOT NULL,
   SALES_STAFF_POSITION_EN_position varchar(50) NOT NULL,
@@ -33,13 +35,15 @@ CREATE TABLE Sales_staff (
 );
 
 CREATE TABLE Satisfaction_type (
-  SATISFACTION_TYPE_code int PRIMARY KEY,
+    SATISFACTION_TYPE_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  SATISFACTION_TYPE_code int,
   SATISFACTION_TYPE_description varchar(255) NOT NULL,
   SATISFACTION_TYPE_description_short varchar(50) NOT NULL
 );
 
 CREATE TABLE Course (
-  COURSE_code int PRIMARY KEY,
+    COURSE_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  COURSE_code int,
   COURSE_description varchar(255) NOT NULL,
   COURSE_description_short varchar(255) NOT NULL
 );
@@ -54,13 +58,15 @@ CREATE TABLE Date (
 );
 
 CREATE TABLE "Order" (
-  ORDER_order_number int PRIMARY KEY,
+    ORDER_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  ORDER_order_number int,
   ORDER_ORDER_METHOD_CODE_method_code int,
   ORDER_ORDER_METHOD_EN_method varchar(50) NOT NULL,
 );
 
 CREATE TABLE Retailer_site (
-  RETAILER_SITE_code int PRIMARY KEY,
+    RETAILER_SITE_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  RETAILER_SITE_code int,
   RETAILER_SITE_COUNTRY_CODE_country int NOT NULL,
   RETAILER_SITE_CITY_city varchar(50) NOT NULL,
   RETAILER_SITE_REGION_region varchar(50),
@@ -73,14 +79,16 @@ CREATE TABLE Retailer_site (
 );
 
 CREATE TABLE Retailer_segment (
-  RETAILER_SEGMENT_segment_code int PRIMARY KEY,
+    RETAILER_SEGMENT_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  RETAILER_SEGMENT_segment_code int,
   RETAILER_SEGMENT_language char(2) NOT NULL,
   RETAILER_SEGMENT_segment_name varchar(50) NOT NULL,
   RETAILER_SEGMENT_SEGMENT_DESCRIPTION_description varchar(255) NOT NULL
 );
 
 CREATE TABLE Retailer_headquarter (
-  RETAILER_HEADQUARTER_codemr int PRIMARY KEY,
+    RETAILER_HEADQUARTER_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  RETAILER_HEADQUARTER_codemr int,
     RETAIL_HEADQUARTER_retailer_name varchar(50) NOT NULL,
     RETAILER_HEADQUARTER_address1_address varchar(255),
     RETAILER_HEADQUARTER_address2_address varchar(255),
@@ -96,7 +104,8 @@ CREATE TABLE Retailer_headquarter (
 
 
 CREATE TABLE Sales_branch (
-  SALES_BRANCH_code int PRIMARY KEY,
+    SALE_BRANCH_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  SALES_BRANCH_code int,
   SALES_BRANCH_COUNTRY_CODE_country int NOT NULL,
   SALES_BRANCH_REGION_region varchar(50),
   SALES_BRANCH_CITY_city varchar(50) NOT NULL,
@@ -107,7 +116,8 @@ CREATE TABLE Sales_branch (
 );
 
 CREATE TABLE Retailer_contact (
-  RETAILER_CONTACT_code int PRIMARY KEY,
+    RETAILER_CONTACT_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  RETAILER_CONTACT_code int,
   RETAILER_CONTACT_email varchar(255) NOT NULL,
   RETAILER_CONTACT_RETAILER_SITE_CODE_site_code int,
   FOREIGN KEY (RETAILER_CONTACT_RETAILER_SITE_CODE_site_code) REFERENCES Retailer_site(RETAILER_SITE_code),
@@ -121,7 +131,8 @@ CREATE TABLE Retailer_contact (
 );
 
 CREATE TABLE Retailer (
-  RETAILER_code int PRIMARY KEY,
+    RETAILER_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  RETAILER_code int,
   RETAILER_name varchar(255) NOT NULL,
   RETAILER_COMPANY_CODE_MR_company varchar(50),
   RETAILER_RETAILER_TYPE_code int,
@@ -129,7 +140,8 @@ CREATE TABLE Retailer (
 );
 
 CREATE TABLE Product (
-  PRODUCT_number INT PRIMARY KEY,
+    PRODUCT_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  PRODUCT_number INT,
   PRODUCT_name_product VARCHAR(MAX) NOT NULL,
   PRODUCT_description_description VARCHAR(MAX),
   PRODUCT_image_image VARCHAR(255), -- url to image
@@ -146,7 +158,8 @@ CREATE TABLE Product (
 
 
 CREATE TABLE Order_details (
-  ORDER_DETAILS_code int PRIMARY KEY,
+    ORDER_DETAILS_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  ORDER_DETAILS_code int,
   ORDER_DETAILS_QUANTITY_quantity int NOT NULL,
   ORDER_DETAILS_TOTAL_COST_total money NOT NULL,
   ORDER_DETAILS_TOTAL_MARGIN_margin money NOT NULL,
@@ -160,7 +173,8 @@ CREATE TABLE Order_details (
 );
 
 CREATE TABLE Returned_item (
-    Returned_item INT PRIMARY KEY,
+    RETURNED_ITEM_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+    Returned_item INT,
     RETURNED_ITEM_code VARCHAR(20) NOT NULL,
     RETURNED_ITEM_DATE DATETIME NOT NULL,
     RETURNED_ITEM_QUANTITY INT NOT NULL,
@@ -171,7 +185,8 @@ CREATE TABLE Returned_item (
 );
 
 CREATE TABLE SALES_TARGETDATA (
-  SALES_TARGETDATA_id int PRIMARY KEY,
+    SALES_TARGETDATA_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  SALES_TARGETDATA_id int,
   SALES_TARGETDATA_SALES_YEAR int NOT NULL,
   SALES_TARGETDATA_SALES_PERIOD varchar(50) NOT NULL,
   SALES_TARGETDATA_RETAILER_NAME varchar(255),
@@ -206,7 +221,8 @@ CREATE TABLE Satisfaction (
 );
 
 CREATE TABLE Order_header (
-  ORDER_HEADER_number int PRIMARY KEY,  -- Unique order identifier
+    ORDER_HEADER_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  ORDER_HEADER_number int,  -- Unique order identifier
   ORDER_HEADER_RETAILER_CODE int NOT NULL,  -- Foreign key referencing Retailer table
   FOREIGN KEY (ORDER_HEADER_RETAILER_CODE) REFERENCES Retailer(RETAILER_code),
   ORDER_HEADER_SALES_STAFF_CODE int NOT NULL,  -- Foreign key referencing Sales_staff table
