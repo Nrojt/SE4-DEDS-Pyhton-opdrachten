@@ -72,6 +72,29 @@ CREATE TABLE Retailer_site (
   RETAILER_SITE_MAIN_ADDRESS_address varchar(255)
 );
 
+CREATE TABLE Retailer_segment (
+  RETAILER_SEGMENT_segment_code int PRIMARY KEY,
+  RETAILER_SEGMENT_language char(2) NOT NULL,
+  RETAILER_SEGMENT_segment_name varchar(50) NOT NULL,
+  RETAILER_SEGMENT_SEGMENT_DESCRIPTION_description varchar(255) NOT NULL
+);
+
+CREATE TABLE Retailer_headquarter (
+  RETAILER_HEADQUARTER_codemr int PRIMARY KEY,
+    RETAIL_HEADQUARTER_retailer_name varchar(50) NOT NULL,
+    RETAILER_HEADQUARTER_address1_address varchar(255),
+    RETAILER_HEADQUARTER_address2_address varchar(255),
+    RETAILER_HEADQUARTER_main_address_address varchar(255),
+    RETAILER_HEADQUARTER_country_code_country int NOT NULL,
+    RETAILER_HEADQUARTER_region_region varchar(50),
+    RETAILER_HEADQUARTER_city_city varchar(50) NOT NULL,
+    RETAILER_HEADQUARTER_postal_zone_postal_zone varchar(20),
+    RETAILER_HEADQUARTER_fax_fax varchar(50),
+    RETAILER_HEADQUARTER_phone_phone varchar(50) NOT NULL,
+    RETAILER_HEADQUARTER_segment_code int,
+);
+
+
 CREATE TABLE Sales_branch (
   SALES_BRANCH_code int PRIMARY KEY,
   SALES_BRANCH_COUNTRY_CODE_country int NOT NULL,
