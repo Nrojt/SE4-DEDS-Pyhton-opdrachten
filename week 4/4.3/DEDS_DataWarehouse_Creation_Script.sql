@@ -36,7 +36,7 @@ CREATE TABLE Sales_staff (
   SALES_STAFF_FULL_NAME_full_name AS (SALES_STAFF_FIRST_NAME_first_name + ' ' + SALES_STAFF_LAST_NAME_last_name) PERSISTED, -- persisted so it can be indexed and is only calculated once (at first insert)
   SALES_STAFF_SALES_BRANCH_CODE_branch_code int,
   SALES_STAFF_SALES_BRANCH_ADDRESS_address varchar(255),
-  SALES_STAFF_SALES_BRANCH_ADDRESS_EXTRA_address_extra varchar(255),
+  SALES_STAFF_SALES_BRANCH_ADDRESS_EXTRA_address_extra varchar(255) NULL,
     LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
 );
@@ -45,7 +45,7 @@ CREATE TABLE Satisfaction_type (
     SATISFACTION_TYPE_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
   SATISFACTION_TYPE_code int UNIQUE NOT NULL,
   SATISFACTION_TYPE_description varchar(255) NOT NULL,
-  SATISFACTION_TYPE_description_short varchar(50) NOT NULL,
+  SATISFACTION_TYPE_description_short varchar(50) NULL,
     LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
 );
@@ -54,7 +54,7 @@ CREATE TABLE Course (
     COURSE_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
   COURSE_code int UNIQUE NOT NULL,
   COURSE_description varchar(255) NOT NULL,
-  COURSE_description_short varchar(255) NOT NULL,
+  COURSE_description_short varchar(255) NULL,
     LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
 );
@@ -88,7 +88,7 @@ CREATE TABLE Retailer_site (
   RETAILER_SITE_ACTIVE_INDICATOR_indicator bit NOT NULL,
   RETAILER_SITE_ADDRESS1_address varchar(255),
   RETAILER_SITE_ADDRESS2_address varchar(255),
-  RETAILER_SITE_MAIN_ADDRESS_address varchar(255),
+  RETAILER_SITE_MAIN_ADDRESS_address varchar(255) NULL,
     LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
 );
@@ -109,7 +109,7 @@ CREATE TABLE Retailer_headquarter (
     RETAIL_HEADQUARTER_retailer_name varchar(50) NOT NULL,
     RETAILER_HEADQUARTER_address1_address varchar(255),
     RETAILER_HEADQUARTER_address2_address varchar(255),
-    RETAILER_HEADQUARTER_main_address_address varchar(255),
+    RETAILER_HEADQUARTER_main_address_address varchar(255) NULL,
     RETAILER_HEADQUARTER_country_code_country int NOT NULL,
     RETAILER_HEADQUARTER_region_region varchar(50),
     RETAILER_HEADQUARTER_city_city varchar(50) NOT NULL,
@@ -130,7 +130,7 @@ CREATE TABLE Sales_branch (
   SALES_BRANCH_POSTAL_ZONE_postal_zone varchar(20),
   SALES_BRANCH_ADDRESS1_address varchar(255),
   SALES_BRANCH_ADDRESS2_address varchar(255),
-  SALES_BRANCH_MAIN_ADDRESS_address varchar(255),
+  SALES_BRANCH_MAIN_ADDRESS_address varchar(255) NULL,
     LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
 );
