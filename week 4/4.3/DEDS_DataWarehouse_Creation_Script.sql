@@ -11,6 +11,15 @@ GO
 USE DEDS_DataWarehouse;
 GO
 
+CREATE TABLE Year (
+  Year int PRIMARY KEY,
+  CHECK (Year >= 1000 AND Year <= 9999) -- Adjust year range as needed
+);
+
+CREATE TABLE Date (
+  DATE_date DATE PRIMARY KEY -- Store the complete date in a single column
+);
+
 CREATE TABLE Unit (
 UNIT_SK int IDENTITY (1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
   UNIT_id int NOT NULL,
@@ -29,24 +38,26 @@ CREATE TABLE Sales_staff (
   SALES_STAFF_POSITION_EN_position varchar(50) NOT NULL,
   SALES_STAFF_WORK_PHONE_work_phone varchar(50) NOT NULL,
   SALES_STAFF_DATE_HIRED_hired date NOT NULL,
+  FOREIGN KEY (SALES_STAFF_DATE_HIRED_hired) REFERENCES Date(DATE_date),
   SALES_STAFF_MANAGER_CODE_manager int,
+  FOREIGN KEY (SALES_STAFF_MANAGER_CODE_manager) REFERENCES Sales_staff(SALES_STAFF_SK),
   SALES_STAFF_FAX varchar(50) NOT NULL,
   SALES_STAFF_FIRST_NAME_first_name varchar(50) NOT NULL,
   SALES_STAFF_LAST_NAME_last_name varchar(50) NOT NULL,
-  SALES_STAFF_FULL_NAME_full_name AS (SALES_STAFF_FIRST_NAME_first_name + ' ' + SALES_STAFF_LAST_NAME_last_name) PERSISTED, -- persisted so it can be indexed and is only calculated once (at first insert)
+  SALES_STAFF_FULL_NAME_full_name AS (SALES_STAFF_FIRST_NAME_first_name + ' ' + SALES_STAFF_LAST_NAME_last_name),
   SALES_STAFF_SALES_BRANCH_CODE_branch_code int,
-  SALES_STAFF_SALES_BRANCH_ADDRESS_address varchar(255),
-  SALES_STAFF_SALES_BRANCH_ADDRESS_EXTRA_address_extra varchar(255) NULL,
+  SALES_STAFF_SALES_BRANCH_ADDRESS1_address varchar(255),
+  SALES_STAFF_SALES_BRANCH_ADDRESS2_address varchar(255) NULL,
   LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
 );
 
 CREATE TABLE Satisfaction_type (
-    SATISFACTION_TYPE_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
+  SATISFACTION_TYPE_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
   SATISFACTION_TYPE_code int NOT NULL,
   SATISFACTION_TYPE_description varchar(255) NOT NULL,
   SATISFACTION_TYPE_description_short varchar(50) NULL,
-    LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
+  LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
 );
 
@@ -57,15 +68,6 @@ CREATE TABLE Course (
   COURSE_description_short varchar(255) NULL,
   LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
-);
-
-CREATE TABLE Year (
-  Year int PRIMARY KEY,
-  CHECK (Year >= 1000 AND Year <= 9999) -- Adjust year range as needed
-);
-
-CREATE TABLE Date (
-  DATE_date date PRIMARY KEY -- Store the complete date in a single column
 );
 
 CREATE TABLE "Order" (
@@ -148,7 +150,7 @@ CREATE TABLE Retailer_contact (
   RETAILER_CONTACT_GENDER_gender char(1),
   RETAILER_CONTACT_FIRST_NAME_first_name varchar(50) NOT NULL,
   RETAILER_CONTACT_LAST_NAME_last_name varchar(50) NOT NULL,
-  RETAILER_CONTACT_FULL_NAME_full_name AS (RETAILER_CONTACT_FIRST_NAME_first_name + ' ' + RETAILER_CONTACT_LAST_NAME_last_name) PERSISTED, -- persisted so it can be indexed and is only calculated once (at first insert)
+  RETAILER_CONTACT_FULL_NAME_full_name AS (RETAILER_CONTACT_FIRST_NAME_first_name + ' ' + RETAILER_CONTACT_LAST_NAME_last_name),
   LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
 );
@@ -171,10 +173,11 @@ CREATE TABLE Product (
   PRODUCT_description_description VARCHAR(MAX),
   PRODUCT_image_image VARCHAR(255), -- url to image
   PRODUCT_INTRODUCTION_DATE_introduced DATE,
+  FOREIGN KEY (PRODUCT_INTRODUCTION_DATE_introduced) REFERENCES Date(DATE_date),
   PRODUCT_PRODUCTION_COST_cost money NOT NULL,
   PRODUCT_MARGIN_margin money NOT NULL,
   PRODUCT_LANGUAGE_language VARCHAR(5) NOT NULL,
-  PRODUCT_MINIMUM_SALE_PRICE_minPrice money NULL,
+  PRODUCT_MINIMUM_SALE_PRICE_minPrice AS (PRODUCT_PRODUCTION_COST_cost + PRODUCT_MARGIN_margin),
   PRODUCT_PRODUCT_LINE_code varchar(50),
   PRODUCT_PRODUCT_LINE_code_en VARCHAR(50),
   PRODUCT_PRODUCT_TYPE_code varchar(50),
@@ -204,7 +207,8 @@ CREATE TABLE Order_details (
 CREATE TABLE Returned_item (
   RETURNED_ITEM_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
   RETURNED_ITEM_code VARCHAR(20) NOT NULL,
-  RETURNED_ITEM_DATE DATETIME NOT NULL,
+  RETURNED_ITEM_DATE DATE NOT NULL,
+  FOREIGN KEY (RETURNED_ITEM_DATE) REFERENCES Date(DATE_date),
   RETURNED_ITEM_QUANTITY INT NOT NULL,
   RETURNED_ITEM_ORDER_DETAIL_CODE INT REFERENCES Order_details(ORDER_DETAILS_SK),
   RETURNED_ITEM_RETURN_REASON_code INT NOT NULL,
@@ -239,7 +243,7 @@ CREATE TABLE Training (
   TRAINING_COURSE_CODE INT NOT NULL,
   FOREIGN KEY (TRAINING_COURSE_CODE) REFERENCES Course(COURSE_SK),
   TRAINING_YEAR INT NOT NULL,
-  CHECK (TRAINING_YEAR >= 1000 AND TRAINING_YEAR <= 9999),  -- Year range check
+  FOREIGN KEY (TRAINING_YEAR) REFERENCES Year(Year),
   PRIMARY KEY (TRAINING_SALES_STAFF_CODE, TRAINING_COURSE_CODE),  -- Use composite primary key for unique combination
   LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
@@ -252,6 +256,7 @@ CREATE TABLE Satisfaction (
   FOREIGN KEY (SATISFACTION_SATISFACTION_TYPE_CODE) REFERENCES Satisfaction_type(SATISFACTION_TYPE_SK),
   PRIMARY KEY (SATISFACTION_SALES_STAFF_CODE, SATISFACTION_SATISFACTION_TYPE_CODE),  -- Use composite primary key for unique combination
   SATISFACTION_YEAR INT NOT NULL,
+  FOREIGN KEY (SATISFACTION_YEAR) REFERENCES Year(Year),
   LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
 );
@@ -266,6 +271,7 @@ CREATE TABLE Order_header (
   ORDER_HEADER_SALES_BRANCH_CODE int,  -- Foreign key referencing Sales_branch table (nullable)
   FOREIGN KEY (ORDER_HEADER_SALES_BRANCH_CODE) REFERENCES Sales_branch(SALES_BRANCH_SK),
   ORDER_HEADER_ORDER_DATE date NOT NULL,
+  FOREIGN KEY (ORDER_HEADER_ORDER_DATE) REFERENCES Date(DATE_date),
   ORDER_HEADER_RETAILER_SITE_CODE int,  -- Foreign key referencing Retailer_site table (nullable)
   FOREIGN KEY (ORDER_HEADER_RETAILER_SITE_CODE) REFERENCES Retailer_site(RETAILER_SITE_SK),
   ORDER_HEADER_RETAILER_CONTACT_CODE int,  -- Foreign key referencing Retailer_contact table (nullable)
@@ -297,6 +303,7 @@ CREATE TABLE GO_SALES_PRODUCT_FORECAST (
   LAST_UPDATED datetime2 NOT NULL DEFAULT SYSDATETIME(), -- Add LAST_UPDATED column
   CURRENT_VALUE bit NOT NULL DEFAULT 1 -- Add CURRENT column
 );
+GO
 
 -- triggers
 CREATE TRIGGER trg_Unit_CurrentValue
