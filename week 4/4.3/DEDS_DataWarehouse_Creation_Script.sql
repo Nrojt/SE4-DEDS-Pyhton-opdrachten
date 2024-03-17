@@ -592,3 +592,67 @@ AS
             WHERE GO_SALES_PRODUCT_FORECAST_id = @code AND GO_SALES_PRODUCT_FORECAST_SK != @sk;
         END
     END;
+GO
+
+CREATE TRIGGER trg_Sales_Staff_Address2
+ON Sales_staff
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    -- Check if SALES_STAFF_ADDRESS2_address is an empty string
+    IF EXISTS (SELECT 1 FROM inserted WHERE inserted.SALES_STAFF_SALES_BRANCH_ADDRESS2_address = '')
+    BEGIN
+        -- If it is, set it to NULL
+        UPDATE Sales_staff
+        SET SALES_STAFF_SALES_BRANCH_ADDRESS2_address = NULL
+        WHERE SALES_STAFF_SK IN (SELECT SALES_STAFF_SK FROM inserted WHERE SALES_STAFF_SALES_BRANCH_ADDRESS2_address = '');
+    END
+END;
+GO
+
+CREATE TRIGGER trg_Sales_Branch_Address2
+ON Sales_branch
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    -- Check if SALES_STAFF_ADDRESS2_address is an empty string
+    IF EXISTS (SELECT 1 FROM inserted WHERE inserted.SALES_BRANCH_ADDRESS2_address = '')
+    BEGIN
+        -- If it is, set it to NULL
+        UPDATE Sales_branch
+        SET SALES_BRANCH_ADDRESS2_address = NULL
+        WHERE SALES_BRANCH_SK IN (SELECT SALES_BRANCH_SK FROM inserted WHERE SALES_BRANCH_ADDRESS2_address = '');
+    END
+END;
+GO
+
+CREATE TRIGGER trg_Retailer_Site_Address2
+ON Retailer_site
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    -- Check if SALES_STAFF_ADDRESS2_address is an empty string
+    IF EXISTS (SELECT 1 FROM inserted WHERE inserted.RETAILER_SITE_ADDRESS2_address = '')
+    BEGIN
+        -- If it is, set it to NULL
+        UPDATE Retailer_site
+        SET RETAILER_SITE_ADDRESS2_address = NULL
+        WHERE RETAILER_SITE_SK IN (SELECT RETAILER_SITE_SK FROM inserted WHERE RETAILER_SITE_ADDRESS2_address = '');
+    END
+END;
+GO
+
+CREATE TRIGGER trg_Retailer_Headquarters_Address2
+ON Retailer_headquarter
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    -- Check if SALES_STAFF_ADDRESS2_address is an empty string
+    IF EXISTS (SELECT 1 FROM inserted WHERE inserted.RETAILER_HEADQUARTER_address2_address = '')
+    BEGIN
+        -- If it is, set it to NULL
+        UPDATE Retailer_headquarter
+        SET RETAILER_HEADQUARTER_address2_address = NULL
+        WHERE RETAILER_HEADQUARTER_SK IN (SELECT RETAILER_HEADQUARTER_SK FROM inserted WHERE RETAILER_HEADQUARTER_address2_address = '');
+    END
+END;
