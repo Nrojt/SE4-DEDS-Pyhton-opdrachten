@@ -33,8 +33,8 @@ UNIT_SK int IDENTITY (1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary k
 CREATE TABLE Sales_staff (
   SALES_STAFF_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
   SALES_STAFF_code int NOT NULL,
-  SALES_STAFF_email varchar(255) NOT NULL,
-  SALES_STAFF_extension varchar(50) NOT NULL,
+  SALES_STAFF_email varchar(255) NULL,
+  SALES_STAFF_extension varchar(50) NULL,
   SALES_STAFF_POSITION_EN_position varchar(50) NOT NULL,
   SALES_STAFF_WORK_PHONE_work_phone varchar(50) NOT NULL,
   SALES_STAFF_DATE_HIRED_hired date NOT NULL,
@@ -141,7 +141,7 @@ CREATE TABLE Sales_branch (
 CREATE TABLE Retailer_contact (
   RETAILER_CONTACT_SK int IDENTITY(1,1) PRIMARY KEY, -- Use auto-incrementing ID as primary key
   RETAILER_CONTACT_code int NOT NULL,
-  RETAILER_CONTACT_email varchar(255) NOT NULL,
+  RETAILER_CONTACT_email varchar(255) NULL,
   RETAILER_CONTACT_RETAILER_SITE_CODE_site_code int,
   FOREIGN KEY (RETAILER_CONTACT_RETAILER_SITE_CODE_site_code) REFERENCES Retailer_site(RETAILER_SITE_SK),
   RETAILER_CONTACT_JOB_POSITION_EN_position varchar(50),
@@ -622,37 +622,5 @@ BEGIN
         UPDATE Sales_branch
         SET SALES_BRANCH_ADDRESS2_address = NULL
         WHERE SALES_BRANCH_SK IN (SELECT SALES_BRANCH_SK FROM inserted WHERE SALES_BRANCH_ADDRESS2_address = '');
-    END
-END;
-GO
-
-CREATE TRIGGER trg_Retailer_Site_Address2
-ON Retailer_site
-AFTER INSERT, UPDATE
-AS
-BEGIN
-    -- Check if SALES_STAFF_ADDRESS2_address is an empty string
-    IF EXISTS (SELECT 1 FROM inserted WHERE inserted.RETAILER_SITE_ADDRESS2_address = '')
-    BEGIN
-        -- If it is, set it to NULL
-        UPDATE Retailer_site
-        SET RETAILER_SITE_ADDRESS2_address = NULL
-        WHERE RETAILER_SITE_SK IN (SELECT RETAILER_SITE_SK FROM inserted WHERE RETAILER_SITE_ADDRESS2_address = '');
-    END
-END;
-GO
-
-CREATE TRIGGER trg_Retailer_Headquarters_Address2
-ON Retailer_headquarter
-AFTER INSERT, UPDATE
-AS
-BEGIN
-    -- Check if SALES_STAFF_ADDRESS2_address is an empty string
-    IF EXISTS (SELECT 1 FROM inserted WHERE inserted.RETAILER_HEADQUARTER_address2_address = '')
-    BEGIN
-        -- If it is, set it to NULL
-        UPDATE Retailer_headquarter
-        SET RETAILER_HEADQUARTER_address2_address = NULL
-        WHERE RETAILER_HEADQUARTER_SK IN (SELECT RETAILER_HEADQUARTER_SK FROM inserted WHERE RETAILER_HEADQUARTER_address2_address = '');
     END
 END;
