@@ -1,5 +1,5 @@
 
-# Practicumopdrachten Week 4.3 (eerste kans)
+# Practicumopdrachten Week 4 5 (eerste kans)
 
 import pandas as pd
 import pyodbc
@@ -41,15 +41,25 @@ def process():
         conn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + DB['servername'] + ';DATABASE=master;Trusted_Connection=yes')
         cur = conn.cursor()
 
+        # Get the list of all files and directories in the current directory
+        files_and_directories = os.listdir('.')
+
+        # Print all files and directories
+        for name in files_and_directories:
+            print(name)
+
+
         # Change the current working directory to a subfolder
-        os.chdir('./week 4/4.3/src')
+        #os.chdir('./week 4 5/4 5/src')
 
         # Read the SQL script file
         with open('DEDS_DataWarehouse_Creation_Script.sql', 'r') as file:
             sql_script = file.read()
 
+
         # Split the SQL script into individual statements
         sql_statements = re.split(r'GO\n', sql_script)
+
 
         # Execute the DROP DATABASE statement
         drop_database_stmt = sql_statements[0]
@@ -105,14 +115,12 @@ def process():
     go_sales_inventory_levels = pd.read_csv('../data/raw/GO_SALES_INVENTORY_LEVELSData.csv')
     go_sales_product_forcast = pd.read_csv('../data/raw/GO_SALES_PRODUCT_FORECASTData.csv')
 
-
     # Inlezen van de sqlite tabellen
     go_crm_retailer = pd.read_sql_query("SELECT * FROM retailer", go_crm_connection)
     go_crm_retailer_contact = pd.read_sql_query("SELECT * FROM retailer_contact", go_crm_connection)
     go_crm_retailer_headquarters = pd.read_sql_query("SELECT * FROM retailer_headquarters", go_crm_connection)
     go_crm_retailer_segment = pd.read_sql_query("SELECT * FROM retailer_segment", go_crm_connection)
     go_crm_retailer_type = pd.read_sql_query("SELECT * FROM retailer_type", go_crm_connection)
-    go_crm_sales_territory = pd.read_sql_query("SELECT * FROM sales_territory", go_crm_connection)
 
     go_sales_order_details = pd.read_sql_query("SELECT * FROM order_details", go_sales_connection)
     go_sales_order_header = pd.read_sql_query("SELECT * FROM order_header", go_sales_connection)
@@ -124,7 +132,6 @@ def process():
     go_sales_return_reason = pd.read_sql_query("SELECT * FROM return_reason", go_sales_connection)
     go_sales_returned_item = pd.read_sql_query("SELECT * FROM returned_item", go_sales_connection)
     go_sales_sales_branch = pd.read_sql_query("SELECT * FROM sales_branch", go_sales_connection)
-    go_sales_sales_staff = pd.read_sql_query("SELECT * FROM sales_staff", go_sales_connection)
     go_sales_sales_target_data = pd.read_sql("SELECT * FROM SALES_TARGETData", go_sales_connection)
 
     go_staff_course = pd.read_sql_query("SELECT * FROM course", go_staff_connection)
@@ -133,6 +140,7 @@ def process():
     go_staff_satisfaction = pd.read_sql_query("SELECT * FROM satisfaction", go_staff_connection)
     go_staff_satisfaction_type = pd.read_sql_query("SELECT * FROM satisfaction_type", go_staff_connection)
     go_staff_training = pd.read_sql_query("SELECT * FROM training", go_staff_connection)
+
 
     # Combineren van de brondata om tot ons ETL te komen
     all_dataframes = []
@@ -150,12 +158,6 @@ def process():
 
     all_dataframes.append(returned_item)
 
-    returned_item.head()
-
-
-    # ### Unit
-
-    # 
     unit_columns = ['UNIT_COST', 'UNIT_PRICE', 'UNIT_SALE_PRICE', 'UNIT_id', 'ORDER_DETAIL_CODE']
     unit = go_sales_order_details
 
@@ -170,12 +172,6 @@ def process():
 
     all_dataframes.append(unit)
 
-    unit.head()
-
-
-    # ### Sales_staff
-
-    # 
     sales_staff_columns = ['SALES_STAFF_CODE', 'EMAIL', 'EXTENSION', 'POSITION_EN', 'WORK_PHONE', 'DATE_HIRED', 'MANAGER_CODE', 'FAX', 'FIRST_NAME', 'LAST_NAME',  'ADDRESS1', 'ADDRESS2', 'SALES_BRANCH_CODE']
 
     sales_staff = pd.merge(go_staff_sales_staff, go_staff_sales_branch, left_on='SALES_BRANCH_CODE', right_on='SALES_BRANCH_CODE')
@@ -188,12 +184,6 @@ def process():
 
     all_dataframes.append(sales_staff)
 
-    sales_staff.head()
-
-
-    # ### Satisfaction_type
-
-    # 
     satisfaction_type = go_staff_satisfaction_type
 
     # rename the columns
@@ -201,12 +191,6 @@ def process():
 
     all_dataframes.append(satisfaction_type)
 
-    satisfaction_type.head()
-
-
-    # ### Course
-
-    # 
     course = go_staff_course
 
     # rename the columns
@@ -214,12 +198,7 @@ def process():
 
     all_dataframes.append(course)
 
-    course.head()
 
-
-    # ### Year
-
-    # 
     # to be used in training and satisfaction
     # making year dataframe with year as the primary key
     year = pd.DataFrame({'YEAR': pd.date_range(start='1/1/1900', end='1/1/2200').year})
@@ -232,12 +211,6 @@ def process():
 
     all_dataframes.append(year)
 
-    year.head()
-
-
-    # ### Date
-
-    # 
     # to be used in order header
     date = pd.DataFrame({'DATE_date': pd.date_range(start='1/1/1900', end='1/1/2200')})
 
@@ -248,12 +221,7 @@ def process():
 
     all_dataframes.append(date)
 
-    date.head()
 
-
-    # ### Order
-
-    # 
     # to be used in order header
     order_columns = ['ORDER_METHOD_CODE', 'ORDER_NUMBER', 'ORDER_METHOD_EN']
     order = pd.merge(go_sales_order_header, go_sales_order_method, left_on='ORDER_METHOD_CODE', right_on='ORDER_METHOD_CODE')
@@ -267,12 +235,6 @@ def process():
 
     all_dataframes.append(order)
 
-    order.head()
-
-
-    # ### Retailer_site
-
-    # 
     retailer_site = go_sales_retailer_site
 
     # rename the columns
@@ -280,12 +242,7 @@ def process():
 
     all_dataframes.append(retailer_site)
 
-    retailer_site.head()
 
-
-    # ### Sales_branch
-
-    # 
     sales_branch = go_sales_sales_branch
 
     # rename the columns
@@ -293,12 +250,7 @@ def process():
 
     all_dataframes.append(sales_branch)
 
-    sales_branch.head()
 
-
-    # ### Retailer_contact
-
-    # 
     retailer_contact = go_crm_retailer_contact
 
     # rename the columns
@@ -306,15 +258,6 @@ def process():
 
     all_dataframes.append(retailer_contact)
 
-    retailer_contact.head()
-
-
-    # ### Retailer
-
-
-    # ### Training
-
-    # 
     retailer = pd.merge(go_crm_retailer, go_crm_retailer_type, left_on='RETAILER_TYPE_CODE', right_on='RETAILER_TYPE_CODE')
 
     # rename the columns
@@ -322,12 +265,6 @@ def process():
 
     all_dataframes.append(retailer)
 
-    retailer.head()
-
-
-    # ### Product
-
-    # 
     product = pd.merge(go_sales_product, go_sales_product_type, left_on='PRODUCT_TYPE_CODE', right_on='PRODUCT_TYPE_CODE')
     product = pd.merge(product, go_sales_product_line, left_on='PRODUCT_LINE_CODE', right_on='PRODUCT_LINE_CODE')
 
@@ -336,12 +273,6 @@ def process():
 
     all_dataframes.append(product)
 
-    product.head()
-
-
-    # ### Order_details
-
-    # 
     order_details = go_sales_order_details
 
     # merging the returned_item and order_details
@@ -358,12 +289,6 @@ def process():
 
     all_dataframes.append(order_details)
 
-    order_details.head()
-
-
-    # ## training
-
-    # 
     training = go_staff_training
 
     # converting the year to int 32
@@ -379,12 +304,6 @@ def process():
 
     all_dataframes.append(training)
 
-    training.head()
-
-
-    # ### Satisfaction
-
-    # 
     satisfaction = go_staff_satisfaction
 
     # converting the year to int 32
@@ -399,13 +318,6 @@ def process():
     satisfaction = satisfaction.rename(columns={'SALES_STAFF_CODE': 'SATISFACTION_SALES_STAFF_CODE', 'SATISFACTION_TYPE_CODE': 'SATISFACTION_SATISFACTION_TYPE_CODE', 'YEAR': 'SATISFACTION_YEAR'})
 
     all_dataframes.append(satisfaction)
-
-    satisfaction.head()
-
-
-    # ### Order_header
-
-    # 
     order_header = pd.merge(go_sales_order_header, retailer, left_on='RETAILER_NAME', right_on='RETAILER_name')
 
     # converting the date to datetime
@@ -423,12 +335,6 @@ def process():
 
     all_dataframes.append(order_header)
 
-    order_header.head()
-
-
-    # ### GO_SALES_INVENTORY_LEVELS
-
-    # 
     # adding a leading 0 to the month if it is a single digit
     go_sales_inventory_levels['INVENTORY_MONTH'] = go_sales_inventory_levels['INVENTORY_MONTH'].astype(str).str.zfill(2)
 
@@ -442,12 +348,6 @@ def process():
 
     all_dataframes.append(go_sales_inventory_levels)
 
-    go_sales_inventory_levels.head()
-
-
-    # ### GO_SALES_PRODUCT_FORECAST
-
-    # 
     # merging the product and go_sales_product_forecast
     product['PRODUCT_number'] = product['PRODUCT_number'].astype('int')
     sales_product_forcast = pd.merge(go_sales_product_forcast, product, left_on='PRODUCT_NUMBER', right_on='PRODUCT_number')
@@ -465,12 +365,6 @@ def process():
 
     all_dataframes.append(sales_product_forecast)
 
-    sales_product_forecast.head()
-
-
-    # ##SALES_TARGETData
-
-    # 
     # merge product, retailer and sales_staff
     product['PRODUCT_number'] = product['PRODUCT_number'].astype('int')
 
@@ -487,25 +381,12 @@ def process():
 
     all_dataframes.append(sales_target_data)
 
-    sales_target_data.head()
-
-
-    # ### Retailer_segment
-
-    # 
     retailer_segment = go_crm_retailer_segment
 
     # rename the columns
     retailer_segment = retailer_segment.rename(columns={'SEGMENT_CODE': 'RETAILER_SEGMENT_segment_code', 'LANGUAGE': 'RETAILER_SEGMENT_language', 'SEGMENT_NAME': 'RETAILER_SEGMENT_segment_name', 'SEGMENT_DESCRIPTION': 'RETAILER_SEGMENT_SEGMENT_DESCRIPTION_description'})
 
     all_dataframes.append(retailer_segment)
-
-    retailer_segment.head()
-
-
-    # ### Retailer_headquarters
-
-    # 
     retailer_headquarters = go_crm_retailer_headquarters
 
     # rename the columns
@@ -513,12 +394,6 @@ def process():
 
     all_dataframes.append(retailer_headquarters)
 
-    retailer_headquarters.head()
-
-
-    # ### Verwijderen trial kolommen
-
-    # 
     for df in all_dataframes:
         trial_columns = df.filter(like='TRIAL').columns
         df.drop(columns=trial_columns, inplace=True)
@@ -528,20 +403,10 @@ def process():
     # Omzetten van de data naar de juiste data types.
     # Year en Date zijn al omgezet naar de juiste data types.
 
-
-    # ### Unit
-
-    # 
     unit['UNIT_COST_cost'] = unit['UNIT_COST_cost'].astype('float64')
     unit['UNIT_PRICE_price'] = unit['UNIT_PRICE_price'].astype('float64')
     unit['UNIT_SALE_sale'] = unit['UNIT_SALE_sale'].astype('float64')
 
-    unit.dtypes
-
-
-    # ### Sales_staff
-
-    # 
     sales_staff['SALES_STAFF_code'] = sales_staff['SALES_STAFF_code'].astype('int')
     sales_staff['SALES_STAFF_email'] = sales_staff['SALES_STAFF_email'].astype('string').replace({np.nan: None})
     sales_staff['SALES_STAFF_extension'] = sales_staff['SALES_STAFF_extension'].astype('string').replace({np.nan: None})
@@ -557,41 +422,16 @@ def process():
     sales_staff['SALES_STAFF_SALES_BRANCH_ADDRESS1_address'] = sales_staff['SALES_STAFF_SALES_BRANCH_ADDRESS1_address'].astype('string').replace({np.nan: None})
     sales_staff['SALES_STAFF_SALES_BRANCH_ADDRESS2_address'] = sales_staff['SALES_STAFF_SALES_BRANCH_ADDRESS2_address'].astype('string').replace({np.nan: None})
 
-
-    sales_staff.head()
-
-
-    # ### satisfaction_type
-
-    # 
     satisfaction_type['SATISFACTION_TYPE_code'] = satisfaction_type['SATISFACTION_TYPE_code'].astype('int')
     satisfaction_type['SATISFACTION_TYPE_DESCRIPTION'] = satisfaction_type['SATISFACTION_TYPE_DESCRIPTION'].astype('string').replace({np.nan: None})
 
-    satisfaction_type.dtypes
-
-
-    # ### Course
-
-    # 
     course['COURSE_code'] = course['COURSE_code'].astype('int')
     course['COURSE_DESCRIPTION'] = course['COURSE_DESCRIPTION'].astype('string').replace({np.nan: None})
 
-    course.dtypes
-
-
-    # ### Order
-
-    # 
     order['ORDER_ORDER_METHOD_CODE_method_code'] = order['ORDER_ORDER_METHOD_CODE_method_code'].astype('int')
     order['ORDER_order_number'] = order['ORDER_order_number'].astype('int')
     order['ORDER_ORDER_METHOD_EN_method'] = order['ORDER_ORDER_METHOD_EN_method'].astype('string').replace({np.nan: None})
 
-    order.dtypes
-
-
-    # ### Retailer_site
-
-    # 
     retailer_site['RETAILER_SITE_code'] = retailer_site['RETAILER_SITE_code'].astype('int')
     retailer_site['RETAILER_SITE_COUNTRY_CODE_country'] = retailer_site['RETAILER_SITE_COUNTRY_CODE_country'].astype('string').replace({np.nan: None})
     retailer_site['RETAILER_SITE_CITY_city'] = retailer_site['RETAILER_SITE_CITY_city'].astype('string').replace({np.nan: None})
@@ -602,13 +442,6 @@ def process():
     retailer_site['RETAILER_SITE_ADDRESS1_address'] = retailer_site['RETAILER_SITE_ADDRESS1_address'].astype('string').replace({np.nan: None})
     retailer_site['RETAILER_SITE_ADDRESS2_address'] = retailer_site['RETAILER_SITE_ADDRESS2_address'].astype('string').replace({np.nan: None})
 
-
-    retailer_site.dtypes
-
-
-    # ### Sales_branch
-
-    # 
     sales_branch['SALES_BRANCH_code'] = sales_branch['SALES_BRANCH_code'].astype('int')
     sales_branch['SALES_BRANCH_COUNTRY_CODE_country'] = sales_branch['SALES_BRANCH_COUNTRY_CODE_country'].astype('string').replace({np.nan: None})
     sales_branch['SALES_BRANCH_REGION_region'] = sales_branch['SALES_BRANCH_REGION_region'].astype('string').replace({np.nan: None})
@@ -617,12 +450,6 @@ def process():
     sales_branch['SALES_BRANCH_ADDRESS1_address'] = sales_branch['SALES_BRANCH_ADDRESS1_address'].astype('string').replace({np.nan: None})
     sales_branch['SALES_BRANCH_ADDRESS2_address'] = sales_branch['SALES_BRANCH_ADDRESS2_address'].astype('string').replace({np.nan: None})
 
-    sales_branch.dtypes
-
-
-    # ### Retailer_contact
-
-    # 
     retailer_contact['RETAILER_CONTACT_code'] = retailer_contact['RETAILER_CONTACT_code'].astype('int')
     retailer_contact['RETAILER_CONTACT_email'] = retailer_contact['RETAILER_CONTACT_email'].astype('string').replace({np.nan: None})
     retailer_contact['RETAILER_CONTACT_RETAILER_SITE_CODE_site_code'] = retailer_contact['RETAILER_CONTACT_RETAILER_SITE_CODE_site_code'].astype('int')
@@ -633,24 +460,14 @@ def process():
     retailer_contact['RETAILER_CONTACT_FIRST_NAME_first_name'] = retailer_contact['RETAILER_CONTACT_FIRST_NAME_first_name'].astype('string').replace({np.nan: None})
     retailer_contact['RETAILER_CONTACT_LAST_NAME_last_name'] = retailer_contact['RETAILER_CONTACT_LAST_NAME_last_name'].astype('string').replace({np.nan: None})
 
-    retailer_contact.dtypes
 
-
-    # ### Retailer
-
-    # 
     retailer['RETAILER_code'] = retailer['RETAILER_code'].astype('int')
     retailer['RETAILER_name'] = retailer['RETAILER_name'].astype('string').replace({np.nan: None})
     retailer['RETAILER_COMPANY_CODE_MR_company'] = retailer['RETAILER_COMPANY_CODE_MR_company'].astype('string').replace({np.nan: None})
     retailer['RETAILER_RETAILER_TYPE_code'] = retailer['RETAILER_RETAILER_TYPE_code'].astype('int')
     retailer['RETAILER_RETAILER_TYPE_EN'] = retailer['RETAILER_RETAILER_TYPE_EN'].astype('string').replace({np.nan: None})
 
-    retailer.dtypes
 
-
-    # ### Product
-
-    # 
     product['PRODUCT_number'] = product['PRODUCT_number'].astype('int')
     product['PRODUCT_name_product'] = product['PRODUCT_name_product'].astype('string').replace({np.nan: None})
     product['PRODUCT_description_description'] = product['PRODUCT_description_description'].astype('string').replace({np.nan: None})
@@ -664,12 +481,6 @@ def process():
     product['PRODUCT_PRODUCT_TYPE_code'] = product['PRODUCT_PRODUCT_TYPE_code'].astype('string').replace({np.nan: None})
     product['PRODUCT_PRODUCT_TYPE_code_en'] = product['PRODUCT_PRODUCT_TYPE_code_en'].astype('string').replace({np.nan: None})
 
-    product.dtypes
-
-
-    # ### Order_details
-
-    # 
     order_details['ORDER_DETAILS_QUANTITY_quantity'] = order_details['ORDER_DETAILS_QUANTITY_quantity'].astype('int')
     order_details['ORDER_DETAILS_RETURN_CODE_returned'] = order_details['ORDER_DETAILS_RETURN_CODE_returned'].astype('int')
     order_details['ORDER_DETAILS_ORDER_NUMBER_order'] = order_details['ORDER_DETAILS_ORDER_NUMBER_order'].astype('int')
@@ -684,13 +495,7 @@ def process():
     order_details['UNIT_SALE_sale'] = order_details['UNIT_SALE_sale'].astype('float64')
     order_details['ORDER_DETAIL_code'] = order_details['ORDER_DETAIL_code'].astype('int')
 
-    # unit is already converted
-    order_details.dtypes
 
-
-    # ### Returned_item
-
-    # 
     returned_item['RETURNED_ITEM_code'] = returned_item['RETURNED_ITEM_code'].astype('int')
     returned_item['RETURNED_ITEM_DATE'] = pd.to_datetime(returned_item['RETURNED_ITEM_DATE'], format='mixed')
     returned_item['RETURNED_ITEM_QUANTITY'] = returned_item['RETURNED_ITEM_QUANTITY'].astype('int')
@@ -698,12 +503,6 @@ def process():
     returned_item['RETURNED_ITEM_RETURN_REASON_code'] = returned_item['RETURNED_ITEM_RETURN_REASON_code'].astype('int')
     returned_item['RETURNED_ITEM_RETURN_REASON_description_en'] = returned_item['RETURNED_ITEM_RETURN_REASON_description_en'].astype('string').replace({np.nan: None})
 
-    returned_item.dtypes
-
-
-    # ### Sales_Targetdata
-
-    # 
     sales_target_data['SALES_TARGETDATA_SALES_YEAR'] = sales_target_data['SALES_TARGETDATA_SALES_YEAR'].astype('int')
     sales_target_data['SALES_TARGETDATA_SALES_PERIOD'] = sales_target_data['SALES_TARGETDATA_SALES_PERIOD'].astype('string').replace({np.nan: None})
     sales_target_data['SALES_TARGETDATA_RETAILER_NAME'] = sales_target_data['SALES_TARGETDATA_RETAILER_NAME'].astype('string').replace({np.nan: None})
@@ -722,40 +521,17 @@ def process():
     sales_target_data['PRODUCT_LANGUAGE_language'] = sales_target_data['PRODUCT_LANGUAGE_language'].astype('string').replace({np.nan: None})
     sales_target_data['PRODUCT_name_product'] = sales_target_data['PRODUCT_name_product'].astype('string').replace({np.nan: None})
     sales_target_data['PRODUCT_description_description'] = sales_target_data['PRODUCT_description_description'].astype('string').replace({np.nan: None})
-
-    sales_target_data.dtypes
-
-
-    # ### Training
-
-    # 
     training['TRAINING_SALES_STAFF_CODE'] = training['TRAINING_SALES_STAFF_CODE'].astype('int')
     training['TRAINING_COURSE_CODE'] = training['TRAINING_COURSE_CODE'].astype('int')
     training['TRAINING_YEAR'] = training['TRAINING_YEAR'].astype('int')
     training['COURSE_code'] = training['COURSE_code'].astype('int')
     training['COURSE_DESCRIPTION'] = training['COURSE_DESCRIPTION'].astype('string').replace({np.nan: None})
-
-    training.dtypes
-
-
-    # ### Satisfaction
-
-    # 
     satisfaction['SATISFACTION_SALES_STAFF_CODE'] = satisfaction['SATISFACTION_SALES_STAFF_CODE'].astype('int')
     satisfaction['SATISFACTION_SATISFACTION_TYPE_CODE'] = satisfaction['SATISFACTION_SATISFACTION_TYPE_CODE'].astype('int')
     satisfaction['SATISFACTION_YEAR'] = satisfaction['SATISFACTION_YEAR'].astype('int')
     satisfaction['SATISFACTION_TYPE_code'] = satisfaction['SATISFACTION_TYPE_code'].astype('int')
     satisfaction['SATISFACTION_TYPE_DESCRIPTION'] = satisfaction['SATISFACTION_TYPE_DESCRIPTION'].astype('string').replace({np.nan: None})
 
-    satisfaction.dtypes
-
-
-    # 
-
-
-    # ### Order_header
-
-    # 
     order_header['ORDER_HEADER_number'] = order_header['ORDER_HEADER_number'].astype('int')
     order_header['ORDER_HEADER_SALES_STAFF_CODE'] = order_header['ORDER_HEADER_SALES_STAFF_CODE'].astype('int')
     order_header['ORDER_HEADER_SALES_BRANCH_CODE'] = order_header['ORDER_HEADER_SALES_BRANCH_CODE'].astype('int')
@@ -766,23 +542,11 @@ def process():
     order_header['RETAILER_COMPANY_CODE_MR_company'] = order_header['RETAILER_COMPANY_CODE_MR_company'].astype('string').replace({np.nan: None})
     order_header['RETAILER_NAME'] = order_header['RETAILER_name'].astype('string').replace({np.nan: None})
 
-    order_header.dtypes
-
-
-    # ### Retailer_segment
-
-    # 
     retailer_segment['RETAILER_SEGMENT_segment_code'] = retailer_segment['RETAILER_SEGMENT_segment_code'].astype('int')
     retailer_segment['RETAILER_SEGMENT_language'] = retailer_segment['RETAILER_SEGMENT_language'].astype('string').replace({np.nan: None})
     retailer_segment['RETAILER_SEGMENT_segment_name'] = retailer_segment['RETAILER_SEGMENT_segment_name'].astype('string').replace({np.nan: None})
     retailer_segment['RETAILER_SEGMENT_SEGMENT_DESCRIPTION_description'] = retailer_segment['RETAILER_SEGMENT_SEGMENT_DESCRIPTION_description'].astype('string').replace({np.nan: None})
 
-    retailer_segment.dtypes
-
-
-    # ### Retailer_headquarters
-
-    # 
     retailer_headquarters['RETAILER_HEADQUARTER_codemr'] = retailer_headquarters['RETAILER_HEADQUARTER_codemr'].astype('int')
     retailer_headquarters['RETAIL_HEADQUARTER_retailer_name'] = retailer_headquarters['RETAIL_HEADQUARTER_retailer_name'].astype('string').replace({np.nan: None})
     retailer_headquarters['RETAILER_HEADQUARTER_address1_address'] = retailer_headquarters['RETAILER_HEADQUARTER_address1_address'].astype('string').replace({np.nan: None})
@@ -796,16 +560,10 @@ def process():
     retailer_headquarters['RETAILER_HEADQUARTER_fax_fax'] = retailer_headquarters['RETAILER_HEADQUARTER_fax_fax'].astype('string').replace({np.nan: None})
     retailer_headquarters['RETAILER_HEADQUARTER_segment_code'] = retailer_headquarters['RETAILER_HEADQUARTER_segment_code'].astype('int')
 
-    retailer_headquarters
-
-    #retailer_headquarters.dtypes
-
-
     # # Toevoegen van nieuwe kolommen
     # Toevoegen van de afgeleide informatie die ook in het ETL en de data warehouse moet komen.
     # Full name is al gedaan via sql
 
-    # 
     sales_target_data['SALES_TARGET_DATA_TARGET_COST'] = sales_target_data['SALES_TARGETDATA_SALES_TARGET'] * sales_target_data['PRODUCT_PRODUCTION_COST_cost']
 
     sales_target_data['SALES_TARGET_DATA_TARGET_MARGIN'] = sales_target_data['SALES_TARGETDATA_SALES_TARGET'] * sales_target_data['PRODUCT_MARGIN_margin']
@@ -830,49 +588,28 @@ def process():
 
     retailer_headquarters['MAIN_ADDRESS'] = np.where(retailer_headquarters['RETAILER_HEADQUARTER_address2_address'].isna(), retailer_headquarters['RETAILER_HEADQUARTER_address1_address'], np.where(retailer_headquarters['RETAILER_HEADQUARTER_address1_address'].isna(), retailer_headquarters['RETAILER_HEADQUARTER_address2_address'], None))
 
-
-
-    # ### GO_SALES_PRODUCT_FORECAST
-
-    # 
     sales_product_forcast['YEAR_MONTH'] = sales_product_forcast['YEAR_MONTH'].astype('string')
 
-    sales_product_forcast.dtypes
 
 
     # ## Opslaan historische data
     # Aan alle tabellen een kolom toevoegen met de datum van de wijziging en of dit de huidige versie is.
 
-    # 
     for df in all_dataframes:
         df['LAST_UPDATED'] = pd.to_datetime('today')
         df['CURRENT'] = 1
 
-
-    # 
-
-
     # # Data opslaan in de database
     # De pandas dataframes opslaan in de mssql database
 
-
-    # ## year
-
-    # 
-    print(f"Rows: {year.shape[0]}")
+    print(f"Year Rows: {year.shape[0]}")
     for index, row in year.iterrows():
         query = 'INSERT INTO Year (YEAR) VALUES (?)'
         values = index
         export_cursor.execute(query, values)
 
-
-    # ## Unit
-
-    # 
-    print(f"Rows: {unit.shape[0]}")
-
     unit_code_sk = {}
-
+    print(f"Unit Rows: {unit.shape[0]}")
     for index, row in unit.iterrows():
         query = 'INSERT INTO Unit (UNIT_id, UNIT_COST_cost, UNIT_PRICE_price, UNIT_SALE_sale) VALUES (?,?,?,?);'
         values = (row['UNIT_id'], row['UNIT_COST_cost'], row['UNIT_PRICE_price'], row['UNIT_SALE_sale'])
@@ -884,23 +621,13 @@ def process():
         generated_primary_key = int(export_cursor.fetchval())
         unit_code_sk[row['UNIT_id']] = generated_primary_key
 
-
-
-    # ## date
-
-    # 
-    print(f"Rows: {date.shape[0]}")
+    print(f"Date Rows: {date.shape[0]}")
     for index, row in date.iterrows():
         query = 'INSERT INTO Date (DATE_date) VALUES (?)'
         values = index
         export_cursor.execute(query, values)
 
-
-    # ## Sales_staff
-
-    # 
-    print(f"Rows: {sales_staff.shape[0]}")
-
+    print(f"Sales_staff Rows: {sales_staff.shape[0]}")
     sales_staff_code_sk = {}
 
     for index, row in sales_staff.iterrows():
@@ -923,12 +650,7 @@ def process():
                 values = (sales_staff_code_sk[row['SALES_STAFF_MANAGER_CODE_manager']], sales_staff_code_sk[row['SALES_STAFF_code']])
                 export_cursor.execute(query, values)
 
-
-    # ## satisfaction_type
-
-    # 
-    print(f"Rows: {satisfaction_type.shape[0]}")
-
+    print(f"Satisfaction_type Rows: {satisfaction_type.shape[0]}")
     satisfaction_type_code_sk = {}
 
     for index, row in satisfaction_type.iterrows():
@@ -942,12 +664,7 @@ def process():
         generated_primary_key = int(export_cursor.fetchval())
         satisfaction_type_code_sk[row['SATISFACTION_TYPE_code']] = generated_primary_key
 
-
-    # ## Course
-
-    # 
-    print(f"Rows: {course.shape[0]}")
-
+    print(f"Course code Rows: {course.shape[0]}")
     course_code_sk = {}
 
     for index, row in course.iterrows():
@@ -961,12 +678,7 @@ def process():
         generated_primary_key = int(export_cursor.fetchval())
         course_code_sk[row['COURSE_code']] = generated_primary_key
 
-
-    # ## order
-
-    # 
-    print(f"Rows: {order.shape[0]}")
-
+    print(f"Order Rows: {order.shape[0]}")
     order_code_sk = {}
 
     for index, row in order.iterrows():
@@ -980,12 +692,7 @@ def process():
         generated_primary_key = int(export_cursor.fetchval())
         order_code_sk[row['ORDER_order_number']] = generated_primary_key
 
-
-    # ## retailer_site
-
-    # 
-    print(f"Rows: {retailer_site.shape[0]}")
-
+    print(f"Retailer_site Rows: {retailer_site.shape[0]}")
     # dictionary to store the primary key with the surrogate key. To be used for fk reference
     retailer_site_code_sk_dict = {}
 
@@ -1000,12 +707,7 @@ def process():
         generated_primary_key = int(export_cursor.fetchval())
         retailer_site_code_sk_dict[row['RETAILER_SITE_code']] = generated_primary_key
 
-
-    # ## sales_branch
-
-    # 
-    print(f"Rows: {sales_branch.shape[0]}")
-
+    print(f"Sales branch Rows: {sales_branch.shape[0]}")
     sales_branch_code_sk = {}
 
     for index, row in sales_branch.iterrows():
@@ -1019,12 +721,7 @@ def process():
         generated_primary_key = int(export_cursor.fetchval())
         sales_branch_code_sk[row['SALES_BRANCH_code']] = generated_primary_key
 
-
-    # ## retailer_contact
-
-    # 
-    print(f"Rows: {retailer_contact.shape[0]}")
-
+    print(f"Retailer_contact Rows: {retailer_contact.shape[0]}")
     retailer_contact_code_sk = {}
 
     for index, row in retailer_contact.iterrows():
@@ -1040,12 +737,7 @@ def process():
         generated_primary_key = int(export_cursor.fetchval())    
         retailer_contact_code_sk[row['RETAILER_CONTACT_code']] = generated_primary_key
 
-
-    # ## retailer
-
-    # 
-    print(f"Rows: {retailer.shape[0]}")
-
+    print(f"Retailer Rows: {retailer.shape[0]}")
     retailer_code_sk = {}
 
     for index, row in retailer.iterrows():
@@ -1059,12 +751,7 @@ def process():
         generated_primary_key = int(export_cursor.fetchval())
         retailer_code_sk[row['RETAILER_code']] = generated_primary_key
 
-
-    # ## product
-
-    # 
-    print(f"Rows: {product.shape[0]}")
-
+    print(f"Product Rows: {product.shape[0]}")
     product_code_sk = {}
 
     for index, row in product.iterrows():
@@ -1078,127 +765,82 @@ def process():
         generated_primary_key = int(export_cursor.fetchval())
         product_code_sk[row['PRODUCT_number']] = generated_primary_key
 
-
-    # ## order_details
-
-    # 
-    print(f"Rows: {order_details.shape[0]}")
-
+    print(f"Order_details Rows: {order_details.shape[0]}")
     order_detail_code_sk = {}
 
     for index, row in order_details.iterrows():
-        query = 'INSERT INTO Order_details (ORDER_DETAILS_code, ORDER_DETAILS_QUANTITY_quantity, ORDER_DETAILS_TOTAL_COST_total, ORDER_DETAILS_TOTAL_MARGIN_margin, ORDER_DETAILS_RETURN_CODE_returned, ORDER_DETAILS_ORDER_NUMBER_order, ORDER_DETAILS_PRODUCT_NUMBER_product, ORDER_DETAILS_UNIT_ID_unit) VALUES (?,?,?,?,?,?,?,?)'
-        values = (row['ORDER_DETAIL_code'], row['ORDER_DETAILS_QUANTITY_quantity'], row['ORDER_DETAILS_TOTAL_COST_total'], row['ORDER_DETAILS_TOTAL_MARGIN_margin'], row['ORDER_DETAILS_RETURN_CODE_returned'], row['ORDER_DETAILS_ORDER_NUMBER_order'], product_code_sk[row['ORDER_DETAILS_PRODUCT_NUMBER_product']], row['UNIT_id'])
+        query = 'INSERT INTO Order_details (ORDER_DETAILS_code, ORDER_DETAILS_QUANTITY_quantity, ORDER_DETAILS_TOTAL_COST_total, ORDER_DETAILS_TOTAL_MARGIN_margin,  ORDER_DETAILS_ORDER_NUMBER_order, ORDER_DETAILS_PRODUCT_NUMBER_product, ORDER_DETAILS_UNIT_ID_unit) VALUES (?,?,?,?,?,?,?)'
+        values = (
+        row['ORDER_DETAIL_code'], row['ORDER_DETAILS_QUANTITY_quantity'], row['ORDER_DETAILS_TOTAL_COST_total'],
+        row['ORDER_DETAILS_TOTAL_MARGIN_margin'], order_code_sk[row['ORDER_DETAILS_ORDER_NUMBER_order']],
+        product_code_sk[row['ORDER_DETAILS_PRODUCT_NUMBER_product']], row['UNIT_id'])
         export_cursor.execute(query, values)
-        
+
         # Execute the SELECT statement to retrieve the generated primary key
         query = 'SELECT @@IDENTITY AS GENERATED_KEY'
         export_cursor.execute(query)
         generated_primary_key = int(export_cursor.fetchval())
         order_detail_code_sk[row['ORDER_DETAIL_code']] = generated_primary_key
-        
 
-
-    # ## returned_item
-
-    # 
-    print(f"Rows: {returned_item.shape[0]}")
+    print(f"Returned_item Rows: {returned_item.shape[0]}")
     for index, row in returned_item.iterrows():
         query = 'INSERT INTO Returned_item (RETURNED_ITEM_code, RETURNED_ITEM_DATE, RETURNED_ITEM_QUANTITY, RETURNED_ITEM_ORDER_DETAIL_CODE, RETURNED_ITEM_RETURN_REASON_code, RETURNED_ITEM_RETURN_REASON_description_en, RETURNED_ITEM_RETURNED_ITEMS_TOTAL_PRICE) VALUES (?,?,?,?,?,?,?)'
         values = (row['RETURNED_ITEM_code'], row['RETURNED_ITEM_DATE'], row['RETURNED_ITEM_QUANTITY'], order_detail_code_sk[row['RETURNED_ITEM_ORDER_DETAIL_CODE']], row['RETURNED_ITEM_RETURN_REASON_code'], row['RETURNED_ITEM_RETURN_REASON_description_en'], row['RETURNED_ITEM_RETURNED_ITEMS_TOTAL_PRICE'])
         export_cursor.execute(query, values)
 
-
-    # ## sales_target_data
-
-    # 
-    print(f"Rows: {sales_target_data.shape[0]}")
+    print(f"Sales targetdata Rows: {sales_target_data.shape[0]}")
     for index, row in sales_target_data.iterrows():
         query = 'INSERT INTO SALES_TARGETDATA (SALES_TARGETDATA_SALES_YEAR, SALES_TARGETDATA_SALES_PERIOD, SALES_TARGETDATA_RETAILER_NAME, SALES_TARGETDATA_SALES_TARGET, SALES_TARGETDATA_TARGET_COST, SALES_TARGETDATA_TARGET_MARGIN, SALES_TARGETDATA_SALES_STAFF_CODE, SALES_TARGETDATA_PRODUCT_NUMBER, SALES_TARGETDATA_RETAILER_CODE, SALES_TARGETDATA_SALES_TARGETDATA_ID) VALUES (?,?,?,?,?,?,?,?,?, ?)'
         values = (row['SALES_TARGETDATA_SALES_YEAR'], row['SALES_TARGETDATA_SALES_PERIOD'], row['SALES_TARGETDATA_RETAILER_NAME'], row['SALES_TARGETDATA_SALES_TARGET'], row['SALES_TARGET_DATA_TARGET_COST'], row['SALES_TARGET_DATA_TARGET_MARGIN'],  sales_staff_code_sk[row['SALES_TARGETDATA_SALES_STAFF_CODE']], product_code_sk[row['PRODUCT_number']], retailer_code_sk[row['RETAILER_code']], row['Id'])
         export_cursor.execute(query, values)
 
-
-    # ## training
-
-    # 
-    print(f"Rows: {training.shape[0]}")
+    print(f"Training Rows: {training.shape[0]}")
     for index, row in training.iterrows():
         query = 'INSERT INTO Training (TRAINING_SALES_STAFF_CODE, TRAINING_COURSE_CODE, TRAINING_YEAR) VALUES (?,?,?)'
         values = (sales_staff_code_sk[row['TRAINING_SALES_STAFF_CODE']], course_code_sk[row['TRAINING_COURSE_CODE']], row['TRAINING_YEAR'])
         export_cursor.execute(query, values)
 
-
-    # ## satisfaction
-
-    # 
-    print(f"Rows: {satisfaction.shape[0]}")
+    print(f"Satisfaction Rows: {satisfaction.shape[0]}")
     for index, row in satisfaction.iterrows():
         query = 'INSERT INTO Satisfaction (SATISFACTION_SALES_STAFF_CODE, SATISFACTION_SATISFACTION_TYPE_CODE, SATISFACTION_YEAR) VALUES (?,?,?)'
         values = (sales_staff_code_sk[row['SATISFACTION_SALES_STAFF_CODE']], satisfaction_type_code_sk[row['SATISFACTION_SATISFACTION_TYPE_CODE']], row['SATISFACTION_YEAR'])
         export_cursor.execute(query, values)
 
-
-    # ## order_header
-
-    # 
-    print(f"Rows: {order_header.shape[0]}")
-
+    print(f"Order_header Rows: {order_header.shape[0]}")
     for index, row in order_header.iterrows():
         query = 'INSERT INTO Order_header (ORDER_HEADER_number, ORDER_HEADER_SALES_STAFF_CODE, ORDER_HEADER_SALES_BRANCH_CODE, ORDER_HEADER_RETAILER_SITE_CODE, ORDER_HEADER_RETAILER_CONTACT_CODE, ORDER_HEADER_RETAILER_CODE, ORDER_HEADER_ORDER_DATE, ORDER_HEADER_ORDER_order_number) VALUES (?,?,?,?,?,?,?, ?)'
         values = (row['ORDER_HEADER_number'], sales_staff_code_sk[row['ORDER_HEADER_SALES_STAFF_CODE']], sales_branch_code_sk[row['ORDER_HEADER_SALES_BRANCH_CODE']], retailer_site_code_sk_dict[row['ORDER_HEADER_RETAILER_SITE_CODE']], retailer_contact_code_sk[row['ORDER_HEADER_RETAILER_CONTACT_CODE']], retailer_code_sk[row['RETAILER_CODE']], row['ORDER_HEADER_ORDER_DATE'], order_code_sk[row['ORDER_HEADER_number']])
         export_cursor.execute(query, values)
 
-
-    # ## retailer_segment
-
-    # 
-    print(f"Rows: {retailer_segment.shape[0]}")
+    print(f"Retailer_segment Rows: {retailer_segment.shape[0]}")
     for index, row in retailer_segment.iterrows():
         query = 'INSERT INTO Retailer_segment (RETAILER_SEGMENT_segment_code, RETAILER_SEGMENT_language, RETAILER_SEGMENT_segment_name, RETAILER_SEGMENT_SEGMENT_DESCRIPTION_description, SEGMENT_DESCRIPTION_description_short, CURRENT_VALUE) VALUES (?,?,?,?,?,?)'
         values = (row['RETAILER_SEGMENT_segment_code'], row['RETAILER_SEGMENT_language'], row['RETAILER_SEGMENT_segment_name'], row['RETAILER_SEGMENT_SEGMENT_DESCRIPTION_description'], row['SEGMENT_DESCRIPTION_SHORT'], 1)
         export_cursor.execute(query, values)
 
-
-    # ## retailer_headquarters
-
-    # 
-    print(f"Rows: {retailer_headquarters.shape[0]}")
-
+    print(f"Retailer_headquarters Rows: {retailer_headquarters.shape[0]}")
     for index, row in retailer_headquarters.iterrows():
         query = 'INSERT INTO Retailer_headquarter (RETAILER_HEADQUARTER_codemr, RETAIL_HEADQUARTER_retailer_name, RETAILER_HEADQUARTER_address1_address, RETAILER_HEADQUARTER_address2_address, RETAILER_HEADQUARTER_city_city, RETAILER_HEADQUARTER_region_region, RETAILER_HEADQUARTER_postal_zone_postal_zone, RETAILER_HEADQUARTER_country_code_country, RETAILER_HEADQUARTER_phone_phone, RETAILER_HEADQUARTER_fax_fax, RETAILER_HEADQUARTER_segment_code, RETAILER_HEADQUARTER_main_address_address) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
         values = (row['RETAILER_HEADQUARTER_codemr'], row['RETAIL_HEADQUARTER_retailer_name'], row['RETAILER_HEADQUARTER_address1_address'], row['RETAILER_HEADQUARTER_address2_address'], row['RETAILER_HEADQUARTER_city_city'], row['RETAILER_HEADQUARTER_region_region'], row['RETAILER_HEADQUARTER_postal_zone_postal_zone'], row['RETAILER_HEADQUARTER_country_code_country'], row['RETAILER_HEADQUARTER_phone_phone'], row['RETAILER_HEADQUARTER_fax_fax'], row['RETAILER_HEADQUARTER_segment_code'], row['MAIN_ADDRESS'])
         export_cursor.execute(query, values)
 
-
-    # ## Go_sales_inventory_levels
-
-    # 
-    print(f"Rows: {go_sales_inventory_levels.shape[0]}")
+    print(f"go_sales_inventory_levels Rows: {go_sales_inventory_levels.shape[0]}")
     for index, row in go_sales_inventory_levels.iterrows():
         query = 'INSERT INTO GO_SALES_INVENTORY_LEVELS (GO_SALES_INVENTORY_LEVELS_PRODUCT_NUMBER, GO_SALES_INVENTORY_LEVELS_YEAR_MONTH, GO_SALES_INVENTORY_LEVELS_INVENTORY_COUNT, GO_SALES_INVENTORY_LEVELS_id) VALUES (?,?,?, ?)'
         values = (product_code_sk[row['GO_SALES_INVENTORY_LEVELS_PRODUCT_NUMBER']], row['GO_SALES_INVENTORY_LEVELS_YEAR_MONTH'], row['GO_SALES_INVENTORY_LEVELS_INVENTORY_COUNT'], index)
         export_cursor.execute(query, values)
 
-
-    # ## Go_sales_product_forecast
-
-    # 
-    print(f"Rows: {sales_product_forecast.shape[0]}")
-
     # converting expected cost and expected margin to float
     sales_product_forecast['GO_SALES_PRODUCT_FORECAST_EXPECTED_COST'] = sales_product_forecast['GO_SALES_PRODUCT_FORECAST_EXPECTED_COST'].astype('float')
     sales_product_forecast['GO_SALES_PRODUCT_FORECAST_EXPECTED_MARGIN'] = sales_product_forecast['GO_SALES_PRODUCT_FORECAST_EXPECTED_MARGIN'].astype('float')
+
+    print(f"sales_product_forcast Rows: {sales_product_forecast.shape[0]}")
 
     for index, row in sales_product_forecast.iterrows():
         query = 'INSERT INTO GO_SALES_PRODUCT_FORECAST (GO_SALES_PRODUCT_FORECAST_PRODUCT_NUMBER, GO_SALES_PRODUCT_FORECAST_YEAR_MONTH, GO_SALES_PRODUCT_FORECAST_EXPECTED_VOLUME, GO_SALES_PRODUCT_FORECAST_EXPECTED_COST, GO_SALES_PRODUCT_FORECAST_EXPECTED_MARGIN, GO_SALES_PRODUCT_FORECAST_id) VALUES (?,?,?,?,?,?)'
         values = (product_code_sk[row['GO_SALES_PRODUCT_FORECAST_PRODUCT_NUMBER']], row['GO_SALES_PRODUCT_FORECAST_YEAR_MONTH'],row['GO_SALES_PRODUCT_FORECAST_EXPECTED_VOLUME'], row['GO_SALES_PRODUCT_FORECAST_EXPECTED_COST'], row['GO_SALES_PRODUCT_FORECAST_EXPECTED_MARGIN'], index)
         export_cursor.execute(query, values)
 
-
-    # ## clean up
-
-    # 
     # close cursor
     export_cursor.close()
 
