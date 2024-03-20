@@ -1,8 +1,8 @@
-#import processing
+import processing
 
 
 def main() -> None:
-  #processing.process()
+  processing.process()
   pass
 
 if __name__ == "__main__":
