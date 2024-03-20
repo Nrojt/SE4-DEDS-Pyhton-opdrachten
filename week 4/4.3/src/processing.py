@@ -10,16 +10,10 @@ import sys
 import os
 
 def process():
-    # # Mssql database
-    # Mssql server database
-
     # database name
     DB = {
         'servername': '(local)\\SQLEXPRESS',
         'database': 'DEDS_DataWarehouse'}
-
-
-    # ## Database aanmaken
 
     # Connect to the SQL Server database, not a specific database but the master
     conn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + DB['servername'] + ';DATABASE=master;Trusted_Connection=yes')
@@ -86,9 +80,6 @@ def process():
         # Close the connection
         conn.close()
 
-
-    # ## Database connectie
-
     export_conn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + DB['servername'] + ';DATABASE=' + DB['database'] + ';Trusted_Connection=yes')
 
 
@@ -104,46 +95,25 @@ def process():
         print("Connection with database is not established")
         raise Exception("Connection with database is not established")
 
-
-
-    # # Brontabellen
-    # importeer de brontabellen uit de brondata folder
-
-    # 
     # Connectie met sqlite databases
     go_crm_connection = sqlite3.connect('../data/raw/go_crm.sqlite')
     go_sales_connection = sqlite3.connect('../data/raw/go_sales.sqlite')
     go_staff_connection = sqlite3.connect('../data/raw/go_staff.sqlite')
 
 
-    # 
     # inlezen csv bestanden
     go_sales_inventory_levels = pd.read_csv('../data/raw/GO_SALES_INVENTORY_LEVELSData.csv')
     go_sales_product_forcast = pd.read_csv('../data/raw/GO_SALES_PRODUCT_FORECASTData.csv')
 
 
-    # ## Inlezen van de sqlite tabellen
-
-
-    # ### go_crm
-
-    # 
-    go_crm_age_group = pd.read_sql_query("SELECT * FROM age_group", go_crm_connection)
-    go_crm_country = pd.read_sql_query("SELECT * FROM country", go_crm_connection)
+    # Inlezen van de sqlite tabellen
     go_crm_retailer = pd.read_sql_query("SELECT * FROM retailer", go_crm_connection)
     go_crm_retailer_contact = pd.read_sql_query("SELECT * FROM retailer_contact", go_crm_connection)
     go_crm_retailer_headquarters = pd.read_sql_query("SELECT * FROM retailer_headquarters", go_crm_connection)
     go_crm_retailer_segment = pd.read_sql_query("SELECT * FROM retailer_segment", go_crm_connection)
-    go_crm_retailer_site = pd.read_sql_query("SELECT * FROM retailer_site", go_crm_connection)
     go_crm_retailer_type = pd.read_sql_query("SELECT * FROM retailer_type", go_crm_connection)
-    go_crm_sales_demographic = pd.read_sql_query("SELECT * FROM sales_demographic", go_crm_connection)
     go_crm_sales_territory = pd.read_sql_query("SELECT * FROM sales_territory", go_crm_connection)
 
-
-    # ### go_sales
-
-    # 
-    go_sales_country = pd.read_sql_query("SELECT * FROM country", go_sales_connection)
     go_sales_order_details = pd.read_sql_query("SELECT * FROM order_details", go_sales_connection)
     go_sales_order_header = pd.read_sql_query("SELECT * FROM order_header", go_sales_connection)
     go_sales_order_method = pd.read_sql_query("SELECT * FROM order_method", go_sales_connection)
@@ -157,10 +127,6 @@ def process():
     go_sales_sales_staff = pd.read_sql_query("SELECT * FROM sales_staff", go_sales_connection)
     go_sales_sales_target_data = pd.read_sql("SELECT * FROM SALES_TARGETData", go_sales_connection)
 
-
-    # ### go_staff
-
-    # 
     go_staff_course = pd.read_sql_query("SELECT * FROM course", go_staff_connection)
     go_staff_sales_branch = pd.read_sql_query("SELECT * FROM sales_branch", go_staff_connection)
     go_staff_sales_staff = pd.read_sql_query("SELECT * FROM sales_staff", go_staff_connection)
@@ -168,20 +134,9 @@ def process():
     go_staff_satisfaction_type = pd.read_sql_query("SELECT * FROM satisfaction_type", go_staff_connection)
     go_staff_training = pd.read_sql_query("SELECT * FROM training", go_staff_connection)
 
-
-    # 
-
-
-    # # Combineren van de tabellen
     # Combineren van de brondata om tot ons ETL te komen
-
-    # 
     all_dataframes = []
 
-
-    # ### returned_item
-
-    # 
     # to be used in order details
     returned_item_columns = ['RETURN_CODE', 'RETURN_DATE', 'RETURN_QUANTITY', 'ORDER_DETAIL_CODE', 'RETURN_REASON_CODE', 'RETURN_DESCRIPTION_EN']
     returned_item = pd.merge(go_sales_returned_item, go_sales_return_reason, left_on='RETURN_REASON_CODE', right_on='RETURN_REASON_CODE')
