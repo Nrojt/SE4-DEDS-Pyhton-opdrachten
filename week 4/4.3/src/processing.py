@@ -7,6 +7,7 @@ import sqlite3
 import numpy as np
 import re
 import sys
+import os
 
 def process():
     # # Mssql database
@@ -45,6 +46,9 @@ def process():
         # Reconnect to the SQL Server database
         conn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + DB['servername'] + ';DATABASE=master;Trusted_Connection=yes')
         cur = conn.cursor()
+
+        # Change the current working directory to a subfolder
+        os.chdir('./week 4/4.3/src')
 
         # Read the SQL script file
         with open('DEDS_DataWarehouse_Creation_Script.sql', 'r') as file:
@@ -107,15 +111,15 @@ def process():
 
     # 
     # Connectie met sqlite databases
-    go_crm_connection = sqlite3.connect('data/raw/go_crm.sqlite')
-    go_sales_connection = sqlite3.connect('data/raw/go_sales.sqlite')
-    go_staff_connection = sqlite3.connect('data/raw/go_staff.sqlite')
+    go_crm_connection = sqlite3.connect('../data/raw/go_crm.sqlite')
+    go_sales_connection = sqlite3.connect('../data/raw/go_sales.sqlite')
+    go_staff_connection = sqlite3.connect('../data/raw/go_staff.sqlite')
 
 
     # 
     # inlezen csv bestanden
-    go_sales_inventory_levels = pd.read_csv('data/raw/GO_SALES_INVENTORY_LEVELSData.csv')
-    go_sales_product_forcast = pd.read_csv('data/raw/GO_SALES_PRODUCT_FORECASTData.csv')
+    go_sales_inventory_levels = pd.read_csv('../data/raw/GO_SALES_INVENTORY_LEVELSData.csv')
+    go_sales_product_forcast = pd.read_csv('../data/raw/GO_SALES_PRODUCT_FORECASTData.csv')
 
 
     # ## Inlezen van de sqlite tabellen
