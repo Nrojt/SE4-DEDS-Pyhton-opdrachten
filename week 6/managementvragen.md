@@ -6,3 +6,8 @@
 - Wat is het verschil tussen de hoeveelheid orders en de hoeveelheid geretourneerde items?
 - Wat is de populairste manier van bestellen?
 - Welk deel van de orders wordt geretourneerd?
+
+- Hoeveel enquetes zijn er ingevuld?
+- Wat is de mate van tevredenheid?
+
+- In welk land bevinden zich de meeste branches
