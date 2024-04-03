@@ -11,6 +11,9 @@ jupyter = "^1.0.0"
 pandas = "^2.2.1"
 pyodbc = "^5.1.0"
 notebook = "^7.1.1"
+scikit-learn = "^1.4.1.post1"
+numpy = "^1.26.4"
+sqlalchemy = "^2.0.29"
 
 
 [build-system]
